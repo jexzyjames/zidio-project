@@ -41,6 +41,21 @@ function Signin({ formData, setFormData }) {
     }
   };
 
+  const handleSignUp =(e)=>{
+  e.preventDefault();
+  if (
+    loggedin === true &&
+    pass.current.value !== "" &&
+    user.current.value !== ""
+  ) {
+    setSignUp(false)
+  } else {
+    setLoggedIn(false);
+    alert("please fill in username and password");
+    return false;
+  }
+}
+
   const handleShowPasword = e => {
     if (pass.current.type === "password") {
       pass.current.type = "text";
@@ -56,7 +71,7 @@ function Signin({ formData, setFormData }) {
         <div className="register">
           <h1>{status === "Log In" ? "Sign Up" : "Sign Up"}</h1>
           <h2>Let's get you signed up first</h2>
-          <form onSubmit={handleClick} className="form" action="">
+          <form onSubmit={handleSignUp} className="form" action="">
             <br />
             <input
               ref={user}
