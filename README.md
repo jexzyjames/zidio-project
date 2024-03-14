@@ -1,2 +1,4 @@
-# zidio-project
-Zidio Internship project {Location Tracker}
+# Details of Project
+
+This project was built with React.
+
