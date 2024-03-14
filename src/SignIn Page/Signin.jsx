@@ -1,7 +1,9 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./page.css";
-
+import axios from 'axios';
+import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +14,39 @@ function Signin({ formData, setFormData }) {
   const user = useRef(null);
   const pass = useRef(null);
   const navigate = useNavigate();
+  const [ users, setUsers ] = useState([]);
+  const [ profile, setProfile ] = useState([]);
+
+  const login = useGoogleLogin({
+      onSuccess: (codeResponse) => setUsers(codeResponse),
+      onError: (error) => console.log('Login Failed:', error)
+  });
+
+  useEffect(
+      () => {
+          if (users) {
+              axios
+                  .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+                      headers: {
+                          Authorization: `Bearer ${users.access_token}`,
+                          Accept: 'application/json'
+                      }
+                  })
+                  .then((res) => {
+                      setProfile(res.data);
+                  })
+                  .catch((err) => console.log(err));
+          }
+      },
+      [ users ]
+  );
+  const responseMessage = (response) => {
+    console.log(response);
+};
+const errorMessage = (error) => {
+    console.log(error);
+};
+
   const handleClick = e => {
     e.preventDefault();
     if (
@@ -26,6 +61,24 @@ function Signin({ formData, setFormData }) {
       return false;
     }
   };
+const handleSignUp =(e)=>{
+  e.preventDefault();
+  if (
+    loggedin === true &&
+    pass.current.value !== "" &&
+    user.current.value !== ""
+  ) {
+    setSignUp(false)
+  } else {
+    setLoggedIn(false);
+    alert("please fill in username and password");
+    return false;
+  }
+}
+
+
+
+
 
   const handleKeyUp = e => {
     if (
@@ -40,21 +93,12 @@ function Signin({ formData, setFormData }) {
       setFormData("");
     }
   };
+  
+  const logOut = () => {
+    googleLogout();
+    setProfile(null);
+};
 
-  const handleSignUp =(e)=>{
-  e.preventDefault();
-  if (
-    loggedin === true &&
-    pass.current.value !== "" &&
-    user.current.value !== ""
-  ) {
-    setSignUp(false)
-  } else {
-    setLoggedIn(false);
-    alert("please fill in username and password");
-    return false;
-  }
-}
 
   const handleShowPasword = e => {
     if (pass.current.type === "password") {
@@ -141,6 +185,8 @@ function Signin({ formData, setFormData }) {
               Register Here
             </span>
           </h4>
+          <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
+          <button onClick={logOut}>Log out</button>
         </div>
       )}
     </div>
